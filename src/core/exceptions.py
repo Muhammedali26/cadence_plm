@@ -61,6 +61,14 @@ class BOMStructureError(CadencePLMException):
     """
 
 
+class CircularDependencyError(BOMStructureError):
+    """BOM ağacında döngüsel bağımlılık (A -> B -> A) tespit edildiğinde fırlatılır."""
+
+
+class InfiniteLoopError(BOMStructureError):
+    """Sonsuz döngü tespit edildiğinde fırlatılır."""
+
+
 class PartNotFoundError(CadencePLMException):
     """
     BOM yapısında veya envanterde istenen parça bulunamadığında fırlatılır.
@@ -158,3 +166,16 @@ class CostCalculationError(CadencePLMException):
     ...     detail="part_id=P-042, stock=-15",
     ... )
     """
+
+
+# ---------------------------------------------------------------------------
+# SAP S/4HANA OData Entegrasyon Hataları
+# ---------------------------------------------------------------------------
+
+class SAPConnectionError(CadencePLMException):
+    """SAP S/4HANA OData servisiyle iletişim kurulamadığında veya zaman aşımında fırlatılır."""
+
+
+class SAPAuthenticationError(CadencePLMException):
+    """SAP S/4HANA OData kimlik doğrulaması (API Key / Basic Auth) başarısız olduğunda fırlatılır."""
+

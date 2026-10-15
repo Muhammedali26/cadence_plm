@@ -169,6 +169,11 @@ class PartImpactDetail(BaseModel):
         description="Yeniden tedarik süresi iş günü cinsinden (>= 0)",
         examples=[21],
     )
+    missing_in_erp: bool = Field(
+        default=False,
+        description="Parça ERP/SAP envanterinde bulunamadığında (yetim parça) True olarak işaretlenir",
+        examples=[False, True],
+    )
 
 
 class SimulationSummary(BaseModel):

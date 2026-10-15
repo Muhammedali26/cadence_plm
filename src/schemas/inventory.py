@@ -13,7 +13,7 @@ Kurallar (.antigravityrules §3):
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class InventoryItem(BaseModel):
@@ -73,3 +73,24 @@ class InventoryItem(BaseModel):
         description="Fiziksel depo/raf konumu",
         examples=["WH-A/Rack-12"],
     )
+
+    @field_validator("stock_quantity", mode="before")
+    @classmethod
+    def sanitize_stock_quantity(cls, v: object) -> int:
+        """Kirli fabrika verisi zırhı: Negatif stokları sıfıra sabitler, geçersiz değerleri 0 yapar."""
+        try:
+            val = int(float(str(v).strip()))
+            return max(0, val)
+        except (ValueError, TypeError):
+            return 0
+
+    @field_validator("lead_time_days", mode="before")
+    @classmethod
+    def sanitize_lead_time_days(cls, v: object) -> int:
+        """Kirli fabrika verisi zırhı: Negatif tedarik sürelerini sıfıra sabitler."""
+        try:
+            val = int(float(str(v).strip()))
+            return max(0, val)
+        except (ValueError, TypeError):
+            return 0
+

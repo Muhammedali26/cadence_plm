@@ -15,6 +15,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from src.api.v1.mock_sap_odata import router as mock_sap_router
 from src.api.v1.simulation_router import router as simulation_router
 from src.core.config import settings
 from src.core.exceptions import (
@@ -124,6 +125,8 @@ def create_app() -> FastAPI:
     app.include_router(simulation_router, prefix=settings.API_PREFIX)
     # /simulate doğrudan erişim için de router eklenir
     app.include_router(simulation_router)
+    # SAP S/4HANA OData v4 / v2 router'ı
+    app.include_router(mock_sap_router)
 
     # ------------------------------------------------------------------
     # Temel Sistem Endpoint'leri

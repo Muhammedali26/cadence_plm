@@ -178,6 +178,22 @@ class Settings(BaseSettings):
     )
 
     # ------------------------------------------------------------------
+    # SAP S/4HANA OData & Sandbox Entegrasyonu (Aşama 17)
+    # ------------------------------------------------------------------
+    SAP_ODATA_BASE_URL: str = Field(
+        default="https://sandbox.api.sap.com/s4hanacloud/sap/opu/odata/sap/API_MATERIAL_STOCK_SRV",
+        description="SAP S/4HANA OData servis uç noktası",
+    )
+    SAP_API_KEY: str | None = Field(
+        default=None,
+        description="SAP Business Accelerator Hub API anahtarı (opsiyonel)",
+    )
+    SAP_USE_SANDBOX: bool = Field(
+        default=False,
+        description="True ise canlı SAP Sandbox'a bağlanır, aksi halde yerel emülatör kullanılır",
+    )
+
+    # ------------------------------------------------------------------
     # Doğrulayıcılar
     # ------------------------------------------------------------------
     @field_validator("OPENAI_API_KEY", mode="before")
@@ -198,6 +214,14 @@ class Settings(BaseSettings):
                 detail="OpenAI API anahtarı 'sk-' ile başlamalı ve geçerli bir token olmalıdır.",
             )
         return raw
+
+    @field_validator("SAP_API_KEY", mode="before")
+    @classmethod
+    def _clean_sap_api_key(cls, v: object) -> str | None:
+        if v is None:
+            return None
+        cleaned = str(v).strip()
+        return cleaned if cleaned else None
 
     @field_validator("API_PREFIX")
     @classmethod

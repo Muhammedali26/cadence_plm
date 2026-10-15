@@ -12,7 +12,9 @@ Kurallar (.antigravityrules §3):
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+import math
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class BOMItem(BaseModel):
@@ -104,3 +106,14 @@ class BOMItem(BaseModel):
         description="Kalıp/aparat kimliği; yoksa None",
         examples=["T-001", None],
     )
+
+    @field_validator("unit_cost", mode="before")
+    @classmethod
+    def sanitize_unit_cost(cls, v: object) -> object:
+        """Kirli fabrika verisi zırhı: None ve NaN maliyetleri 0.0 olarak temizler."""
+        if v is None:
+            return 0.0
+        if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+            return 0.0
+        return v
+

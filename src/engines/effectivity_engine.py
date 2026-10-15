@@ -61,6 +61,7 @@ class EffectivityEngine:
         tooling_lead_time_days: int | None = None,
         daily_consumption_rate: int | None = None,
         tooling_lead_time: int | None = None,
+        sanitize_dirty_data: bool = False,
     ) -> tuple[EffectivityStrategy, int, float]:
         """
         Stok tükenme süresi ve kalıp teslim süresini karşılaştırarak geçiş planı üretir.
@@ -77,6 +78,9 @@ class EffectivityEngine:
             Günlük parça tüketim hızı (> 0). Verilmezse 5 varsayılır.
         tooling_lead_time : int | None
             tooling_lead_time_days için alias parametre.
+        sanitize_dirty_data : bool
+            Kirli fabrika verisi zırhı; True ise negatif stokları 0'a sabitler,
+            None/NaN maliyetleri 0.0 kabul eder ve sıfır tüketim hızında ZeroDivisionError önler.
 
         Returns
         -------
@@ -86,7 +90,7 @@ class EffectivityEngine:
         Raises
         ------
         CostCalculationError
-            Negatif stok, negatif birim maliyet veya geçersiz tüketim hızı durumunda.
+            Negatif stok, negatif birim maliyet veya geçersiz tüketim hızı durumunda (sanitize_dirty_data=False ise).
         """
         # Değer çözümleme (parametre veya __init__ varsayılanı)
         stock = stock_quantity if stock_quantity is not None else self.default_stock_quantity
@@ -98,6 +102,17 @@ class EffectivityEngine:
             if tooling_lead_time_days is not None
             else (tooling_lead_time if tooling_lead_time is not None else 0)
         )
+
+        # Kirli veri koruma zırhı (sanitize_dirty_data=True)
+        if sanitize_dirty_data:
+            if stock is None or stock < 0:
+                stock = max(0, stock if stock is not None else 0)
+            if cost is None or (isinstance(cost, float) and (math.isnan(cost) or math.isinf(cost))):
+                cost = 0.0
+            if rate is None or rate <= 0:
+                rate = self.default_daily_consumption_rate if self.default_daily_consumption_rate > 0 else 5
+            if lead_time < 0:
+                lead_time = 0
 
         if stock is None:
             raise CostCalculationError(
@@ -153,6 +168,24 @@ class EffectivityEngine:
         # Stok daha uzun sürede tükenir -> IMMEDIATE_CUTOFF
         scrap = round(stock * cost, 2)
         return (EffectivityStrategy.IMMEDIATE_CUTOFF, 0, scrap)
+
+    def calculate_transition_plan_safe(
+        self,
+        stock_quantity: int | None = None,
+        unit_cost: float | None = None,
+        tooling_lead_time_days: int | None = None,
+        daily_consumption_rate: int | None = None,
+        tooling_lead_time: int | None = None,
+    ) -> tuple[EffectivityStrategy, int, float]:
+        """Kirli fabrika verilerine karşı zırhlı güvenli yürürlük hesaplayıcı."""
+        return self.calculate_transition_plan(
+            stock_quantity=stock_quantity,
+            unit_cost=unit_cost,
+            tooling_lead_time_days=tooling_lead_time_days,
+            daily_consumption_rate=daily_consumption_rate,
+            tooling_lead_time=tooling_lead_time,
+            sanitize_dirty_data=True,
+        )
 
     # Esnek kullanım ve alias
     calculate_effectivity = calculate_transition_plan

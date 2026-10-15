@@ -12,6 +12,8 @@ Kurallar (.antigravityrules §1 & §2):
 
 from __future__ import annotations
 
+import math
+
 from src.core.exceptions import CostCalculationError
 from src.schemas.bom import BOMItem
 from src.schemas.inventory import InventoryItem
@@ -82,34 +84,37 @@ class ImpactCalculatorEngine:
         max_lead_time: int = 0
 
         for part in affected_parts:
-            # --- Maliyet doğrulama (engine ikinci savunma hattı) ---
-            if part.unit_cost < 0:
+            # --- Birim maliyet kontrolü ve kirli veri zırhı (None / NaN) ---
+            raw_cost = getattr(part, "unit_cost", None)
+            if raw_cost is None or (isinstance(raw_cost, float) and (math.isnan(raw_cost) or math.isinf(raw_cost))):
+                cost: float = 0.0
+            elif raw_cost < 0:
                 raise CostCalculationError(
                     "Negatif birim maliyet hesaplanamaz",
-                    detail=f"part_number={part.part_number!r}, unit_cost={part.unit_cost}",
+                    detail=f"part_number={part.part_number!r}, unit_cost={raw_cost}",
                 )
+            else:
+                cost = float(raw_cost)
 
-            # --- Envanter kaydını bul; yoksa sıfır stok varsay ---
+            # --- Envanter kaydını bul; yetim parça (orphan part) tespiti ---
             inventory_item: InventoryItem | None = inventory_map.get(part.part_number)
+            is_missing_in_erp: bool = inventory_item is None
 
             if inventory_item is not None:
-                stock: int = inventory_item.stock_quantity
-                lead_time: int = inventory_item.lead_time_days
+                raw_stock = getattr(inventory_item, "stock_quantity", 0)
+                # Kirli veri zırhı: Negatif stok sıfıra sabitlenir
+                stock: int = max(0, int(raw_stock)) if raw_stock is not None else 0
+                lead_time: int = max(0, int(getattr(inventory_item, "lead_time_days", 0)))
             else:
-                # Envanterde kayıt yok → stok sıfır, tedarik süresi sıfır
+                # Yetim parça: Envanterde kayıt yok -> stok sıfır, tedarik süresi sıfır
                 stock = 0
                 lead_time = 0
-
-            # --- Engine seviyesi negatif stok koruması ---
-            if stock < 0:
-                raise CostCalculationError(
-                    "Negatif stok miktarı hesaplanamaz",
-                    detail=f"part_number={part.part_number!r}, stock_quantity={stock}",
-                )
+                if cost == 0.0 or getattr(part, "unit_cost", 0.0) == 0.0:
+                    cost = 0.0
 
             # --- Hurda maliyeti hesabı (§2: round 2 ondalık) ---
-            scrap_cost: float = round(stock * part.unit_cost, 2)
-            locked_unit_cost: float = round(part.unit_cost, 2)
+            scrap_cost: float = round(stock * cost, 2)
+            locked_unit_cost: float = round(cost, 2)
 
             # --- Kalıp etkisi ---
             is_tooling_affected: bool = part.tooling_id is not None
@@ -130,6 +135,7 @@ class ImpactCalculatorEngine:
                     tooling_affected=is_tooling_affected,
                     supplier_id=part.supplier_id,
                     lead_time_days=lead_time,
+                    missing_in_erp=is_missing_in_erp,
                 )
             )
 

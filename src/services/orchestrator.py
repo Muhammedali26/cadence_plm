@@ -152,8 +152,18 @@ class CadenceOrchestrator:
         inventory_map: dict[str, InventoryItem] = {}
         for _, row in inventory_df.iterrows():
             pn = str(row["part_number"]).strip()
-            stock = int(row["stock_quantity"])
-            lead = int(row["lead_time_days"])
+            raw_stock = row.get("stock_quantity", 0)
+            try:
+                stock = int(float(str(raw_stock).strip())) if not pd.isna(raw_stock) else 0
+            except (ValueError, TypeError):
+                stock = 0
+
+            raw_lead = row.get("lead_time_days", 0)
+            try:
+                lead = int(float(str(raw_lead).strip())) if not pd.isna(raw_lead) else 0
+            except (ValueError, TypeError):
+                lead = 0
+
             location = (
                 str(row["location"]).strip()
                 if "location" in inventory_df.columns and not pd.isna(row.get("location"))

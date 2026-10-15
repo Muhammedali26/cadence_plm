@@ -19,7 +19,12 @@ from collections import defaultdict
 
 import pandas as pd
 
-from src.core.exceptions import BOMStructureError, PartNotFoundError
+from src.core.exceptions import (
+    BOMStructureError,
+    CircularDependencyError,
+    InfiniteLoopError,
+    PartNotFoundError,
+)
 from src.schemas.bom import BOMItem
 from src.schemas.simulation import WhereUsedDetail
 
@@ -193,7 +198,7 @@ class BOMTreeEngine:
             if current_pn in visited:
                 # İkincil döngü güvencesi — load sırasında zaten yakalanmış
                 # olmalı; burada da fırlatılır (sessiz pass yasak).
-                raise BOMStructureError(
+                raise CircularDependencyError(
                     "Traversal sırasında döngü tespit edildi",
                     detail=f"Tekrar ziyaret edilen parça: {current_pn!r}",
                 )
@@ -252,7 +257,7 @@ class BOMTreeEngine:
             current_pn, level = queue.pop(0)
 
             if current_pn in visited:
-                raise BOMStructureError(
+                raise CircularDependencyError(
                     "Where-used gezintisi sırasında döngüsel bağımlılık tespit edildi",
                     detail=f"Döngü oluşturan üst parça: {current_pn!r}",
                 )
@@ -330,7 +335,7 @@ class BOMTreeEngine:
 
         def _dfs(pn: str, ancestor_stack: set[str]) -> None:
             if pn in ancestor_stack:
-                raise BOMStructureError(
+                raise CircularDependencyError(
                     "Döngüsel bağımlılık tespit edildi (load sırasında)",
                     detail=f"Döngü oluşturan parça: {pn!r}",
                 )
