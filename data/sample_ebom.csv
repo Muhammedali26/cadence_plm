@@ -1,0 +1,13 @@
+part_number,part_name,revision,parent_part_number,quantity,unit_cost,supplier_id,tooling_id
+GBX-1000,Şanzıman Ana Montajı,A,,1.0,1850.00,SUP-BOSCH-01,TLG-GBX-100
+GBX-1100,Şanzıman Gövde Grubu,A,GBX-1000,1.0,350.00,SUP-MAGNA-01,TLG-HOU-110
+GBX-1110,Alüminyum Dış Gövde,A,GBX-1100,1.0,210.00,SUP-ALUCAST-02,TLG-DIE-111
+GBX-1120,Gövde Sızdırmazlık Contası,B,GBX-1100,1.0,15.50,SUP-SEAL-01,TLG-GSK-112
+GBX-1200,Giriş Mili ve Dişli Grubu,A,GBX-1000,1.0,520.00,SUP-ZF-01,TLG-SFT-120
+GBX-1210,Ana Dişli Mili,B,GBX-1200,1.0,180.00,SUP-FORGE-03,TLG-SFT-121
+GBX-1211,1. Vites Tahrik Dişlisi,A,GBX-1210,1.0,75.00,SUP-GEAR-02,TLG-GR-1211
+GBX-1212,2. Vites Tahrik Dişlisi,A,GBX-1210,1.0,82.50,SUP-GEAR-02,TLG-GR-1212
+GBX-1213,Konik Masuralı Rulman,A,GBX-1210,2.0,26.00,SUP-SKF-01,
+GBX-1214,Emniyet Segmanı,C,GBX-1210,2.0,4.50,SUP-FAST-01,
+GBX-1300,Diferansiyel Çıkış Grubu,A,GBX-1000,1.0,410.00,SUP-DANA-01,TLG-DIFF-130
+GB-PINION-02,Ayna Pinyon Dişlisi,A,GBX-1300,1.0,135.00,SUP-GEAR-02,TLG-PIN-02

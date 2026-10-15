@@ -1,0 +1,118 @@
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('CADENCE PLM GEARBOX ASSEMBLY STEP AP214 MODEL'),'2;1');
+FILE_NAME('sample_gearbox.step','2026-10-06T12:00:00',('Antigravity'),('CadencePLM'),'Cadence CAD AP214 Generator','CadencePLM CAD Engine','');
+FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
+ENDSEC;
+DATA;
+/* ========================================================================= */
+/* AP214 CONTEXT DEFINITIONS                                                 */
+/* ========================================================================= */
+#1 = APPLICATION_CONTEXT('automotive design');
+#2 = APPLICATION_PROTOCOL_DEFINITION('international standard','automotive_design',2000,#1);
+#3 = PRODUCT_CONTEXT('',#1,'mechanical');
+#4 = PRODUCT_DEFINITION_CONTEXT('part definition',#1,'design');
+
+/* ========================================================================= */
+/* PRODUCTS & FORMATIONS (PARTS & REVISIONS)                                 */
+/* ========================================================================= */
+/* GBX-1000: Şanzıman Ana Montajı (Root Assembly) */
+#10 = PRODUCT('GBX-1000','Şanzıman Ana Montajı','Gearbox Main Assembly',(#3));
+#11 = PRODUCT_DEFINITION_FORMATION('A','Initial Release',#10);
+#12 = PRODUCT_DEFINITION('design','Assembly Definition',#11,#4);
+
+/* GBX-1100: Şanzıman Gövde Grubu */
+#20 = PRODUCT('GBX-1100','Şanzıman Gövde Grubu','Housing Subassembly',(#3));
+#21 = PRODUCT_DEFINITION_FORMATION('A','Initial Release',#20);
+#22 = PRODUCT_DEFINITION('design','Subassembly Definition',#21,#4);
+
+/* GBX-1110: Alüminyum Dış Gövde */
+#30 = PRODUCT('GBX-1110','Alüminyum Dış Gövde','Outer Aluminum Casing',(#3));
+#31 = PRODUCT_DEFINITION_FORMATION('A','Initial Release',#30);
+#32 = PRODUCT_DEFINITION('design','Part Definition',#31,#4);
+
+/* GBX-1120: Gövde Sızdırmazlık Contası */
+#40 = PRODUCT('GBX-1120','Gövde Sızdırmazlık Contası','Housing Seal Gasket',(#3));
+#41 = PRODUCT_DEFINITION_FORMATION('B','Revision B',#40);
+#42 = PRODUCT_DEFINITION('design','Part Definition',#41,#4);
+
+/* GBX-1200: Giriş Mili ve Dişli Grubu */
+#50 = PRODUCT('GBX-1200','Giriş Mili ve Dişli Grubu','Input Shaft & Gear Subassembly',(#3));
+#51 = PRODUCT_DEFINITION_FORMATION('A','Initial Release',#50);
+#52 = PRODUCT_DEFINITION('design','Subassembly Definition',#51,#4);
+
+/* GBX-1210: Ana Dişli Mili */
+#60 = PRODUCT('GBX-1210','Ana Dişli Mili','Main Gear Shaft',(#3));
+#61 = PRODUCT_DEFINITION_FORMATION('B','Revision B',#60);
+#62 = PRODUCT_DEFINITION('design','Subassembly Definition',#61,#4);
+
+/* GBX-1211: 1. Vites Tahrik Dişlisi */
+#70 = PRODUCT('GBX-1211','1. Vites Tahrik Dişlisi','1st Gear Drive',(#3));
+#71 = PRODUCT_DEFINITION_FORMATION('A','Initial Release',#70);
+#72 = PRODUCT_DEFINITION('design','Part Definition',#71,#4);
+
+/* GBX-1212: 2. Vites Tahrik Dişlisi */
+#80 = PRODUCT('GBX-1212','2. Vites Tahrik Dişlisi','2nd Gear Drive',(#3));
+#81 = PRODUCT_DEFINITION_FORMATION('A','Initial Release',#80);
+#82 = PRODUCT_DEFINITION('design','Part Definition',#81,#4);
+
+/* GBX-1213: Konik Masuralı Rulman */
+#90 = PRODUCT('GBX-1213','Konik Masuralı Rulman','Tapered Roller Bearing',(#3));
+#91 = PRODUCT_DEFINITION_FORMATION('A','Initial Release',#90);
+#92 = PRODUCT_DEFINITION('design','Part Definition',#91,#4);
+
+/* GBX-1214: Emniyet Segmanı */
+#100 = PRODUCT('GBX-1214','Emniyet Segmanı','Retaining Circlip',(#3));
+#101 = PRODUCT_DEFINITION_FORMATION('C','Revision C',#100);
+#102 = PRODUCT_DEFINITION('design','Part Definition',#101,#4);
+
+/* GBX-1300: Diferansiyel Çıkış Grubu */
+#110 = PRODUCT('GBX-1300','Diferansiyel Çıkış Grubu','Differential Output Subassembly',(#3));
+#111 = PRODUCT_DEFINITION_FORMATION('A','Initial Release',#110);
+#112 = PRODUCT_DEFINITION('design','Subassembly Definition',#111,#4);
+
+/* GB-PINION-02: Ayna Pinyon Dişlisi */
+#120 = PRODUCT('GB-PINION-02','Ayna Pinyon Dişlisi','Drive Pinion Gear',(#3));
+#121 = PRODUCT_DEFINITION_FORMATION('A','Initial Release',#120);
+#122 = PRODUCT_DEFINITION('design','Part Definition',#121,#4);
+
+/* ========================================================================= */
+/* NEXT_ASSEMBLY_USAGE_OCCURRENCE (ASSEMBLY HIERARCHY)                       */
+/* ========================================================================= */
+/* GBX-1000 -> GBX-1100 */
+#201 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_01','Housing to Gearbox','',#12,#22,$);
+
+/* GBX-1000 -> GBX-1200 */
+#202 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_02','Input Shaft Group to Gearbox','',#12,#52,$);
+
+/* GBX-1000 -> GBX-1300 */
+#203 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_03','Differential Group to Gearbox','',#12,#112,$);
+
+/* GBX-1100 -> GBX-1110 */
+#204 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_04','Casing to Housing','',#22,#32,$);
+
+/* GBX-1100 -> GBX-1120 */
+#205 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_05','Seal to Housing','',#22,#42,$);
+
+/* GBX-1200 -> GBX-1210 */
+#206 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_06','Main Shaft to Input Group','',#52,#62,$);
+
+/* GBX-1210 -> GBX-1211 */
+#207 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_07','1st Gear to Shaft','',#62,#72,$);
+
+/* GBX-1210 -> GBX-1212 */
+#208 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_08','2nd Gear to Shaft','',#62,#82,$);
+
+/* GBX-1210 -> GBX-1213 (Qty: 2 via 2 occurrences) */
+#209 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_09_A','Bearing 1 to Shaft','',#62,#92,$);
+#210 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_09_B','Bearing 2 to Shaft','',#62,#92,$);
+
+/* GBX-1210 -> GBX-1214 (Qty: 2 via 2 occurrences) */
+#211 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_10_A','Circlip 1 to Shaft','',#62,#102,$);
+#212 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_10_B','Circlip 2 to Shaft','',#62,#102,$);
+
+/* GBX-1300 -> GB-PINION-02 */
+#213 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('NAUO_11','Pinion to Differential Group','',#112,#122,$);
+
+ENDSEC;
+END-ISO-10303-21;

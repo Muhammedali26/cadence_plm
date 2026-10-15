@@ -1,0 +1,30 @@
+# ==============================================================================
+# CadencePLM - AGENT CONTEXT & ARCHITECTURE RULES
+# ==============================================================================
+
+## 1. Temel Direktif: Deterministik Ayrım (CRITICAL)
+- **Matematik ve Ağaç Gezintisi:** Hurda maliyeti (scrap cost), stok tükenme süresi, BOM hiyerarşisi (parent-child traversal) ve parça miktarları ASLA LLM çıktısı veya tahmini ile hesaplanamaz.
+- **Sorumluluk Dağılımı:**
+  - `src/engines/`: Saf, deterministik Python/Pandas kodudur. Sıfır LLM/AI bağımlılığı, sıfır FastAPI bağımlılığı. Test edilebilir saf fonksiyonlar.
+  - `src/services/`: Yalnızca serbest metin ECO talebini parse edip Pydantic modeline dönüştürmek ve motorları (`engines`) sırayla çağırmakla sorumludur.
+  - `src/schemas/`: Tüm katmanların ortak sözleşmesidir (Pydantic v2).
+  - `src/api/`: Sadece HTTP istek/yanıt yönetimidir.
+
+## 2. BOM & Veri Ağacı Bütünlüğü Kuralları
+- BOM yapıları Döngüsel Olmayan Yönlü Çizge (DAG) mantığıyla işlenmelidir. Sonsuz döngüleri (cyclic dependency) önlemek için gezinti fonksiyonlarında `visited_parts` kümesi zorunludur.
+- Eksik parça veya tanımsız parent-child durumlarında sessizce çökmek (`pass`) yasaktır; `BOMStructureError` fırlatılmalıdır.
+- Float veri tipi finansal/maliyet hesaplarında yuvarlama hatası üretmemesi adına 2 ondalık basamağa (`round(val, 2)` veya `Decimal`) kilitlenmelidir.
+
+## 3. Kodlama ve Tip Standartları
+- **Ortam:** Python 3.11+.
+- **Tip Güvenliği:** Katı type hint zorunludur. `Any` kullanımı yasaktır.
+- **Kütüphaneler:** Veri manipülasyonu için `pandas` (veya `polars`), veri doğrulama için `pydantic >= 2.6`, API için `fastapi`, asenkron HTTP için `httpx`.
+- **Hata Yönetimi:** Katmanlar kendi exception'larını fırlatır (`src/core/exceptions.py`). Genel `except Exception` yasaktır.
+
+## 4. Test & Doğrulama Döngüsü
+- `src/engines/` altına eklenen her hesaplama fonksiyonu, `tests/` altında karşılık gelen matematiksel doğrulama testine sahip olmalıdır.
+- Kod yazıldıktan sonra ajanın görevi tamamlaması için terminalde `pytest` çalıştırıp tüm assertion'ların geçtiğini teyit etmesi zorunludur.
+
+## 5. Güvenlik ve Dosya Disiplini
+- CAD, CSV veya Excel dosyaları işlenirken sunucuda geçici dosya çöpü bırakılmamalı; bellek içi (`io.BytesIO`, `io.StringIO`) veya kontrollü `tempfile` kullanılmalıdır.
+- Gizli anahtarlar ve konfigürasyonlar `pydantic-settings` üzerinden yönetilmelidir.

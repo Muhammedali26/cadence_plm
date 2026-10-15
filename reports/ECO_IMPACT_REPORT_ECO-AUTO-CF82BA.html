@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECN Dossier - ECO-AUTO-CF82BA | CadencePLM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.75);
+            --border-card: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(14, 165, 233, 0.3);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-cyan: #0ea5e9;
+            --accent-blue: #3b82f6;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --accent-purple: #8b5cf6;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            background-image: 
+                radial-gradient(circle at 15% 10%, rgba(14, 165, 233, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.06) 0%, transparent 45%);
+            background-attachment: fixed;
+            padding: 40px 20px;
+        }
+
+        .dossier-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Document Header & Control Bar */
+        .control-bar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .brand-meta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-badge {
+            background: linear-gradient(135deg, #0ea5e9, #2563eb);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .doc-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+
+        .status-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-chip.pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-chip.iatf {
+            background: rgba(14, 165, 233, 0.12);
+            color: #38bdf8;
+            border: 1px solid rgba(14, 165, 233, 0.25);
+        }
+
+        /* Dossier Main Header */
+        .dossier-header {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            padding: 36px 40px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dossier-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent-cyan), var(--accent-blue));
+        }
+
+        .header-title-sub {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .header-description {
+            font-size: 15px;
+            color: var(--text-secondary);
+            max-width: 900px;
+        }
+
+        /* Grid & Cards */
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title .icon {
+            color: var(--accent-cyan);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border-card);
+            border-radius: 14px;
+            padding: 22px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            position: relative;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-highlight);
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .kpi-value.scrap { color: var(--accent-rose); }
+        .kpi-value.savings { color: var(--accent-emerald); }
+        .kpi-value.neutral { color: #ffffff; }
+        .kpi-value.exposure { color: var(--accent-amber); }
+
+        .kpi-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Financial Trade-Off Banner */
+        .financial-comparison {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(14, 165, 233, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .comp-info h4 {
+            font-size: 16px;
+            color: #ffffff;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .comp-info p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .comp-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* Where-Used Flow Section */
+        .where-used-box {
+            background: var(--bg-card);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border-card);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .tree-flow {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .tree-node {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 14px 20px;
+            min-width: 190px;
+        }
+
+        .tree-node.target {
+            background: rgba(244, 63, 94, 0.12);
+            border-color: rgba(244, 63, 94, 0.35);
+        }
+
+        .tree-node.root {
+            background: rgba(14, 165, 233, 0.12);
+            border-color: rgba(14, 165, 233, 0.35);
+        }
+
+        .tree-node .level {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .tree-node .part-no {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 15px;
+            color: #ffffff;
+        }
+
+        .tree-node .part-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .tree-arrow {
+            color: var(--accent-cyan);
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Table */
+        .table-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border-card);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        thead th {
+            background: rgba(30, 41, 59, 0.6);
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-card);
+        }
+
+        tbody td {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .td-mono {
+            font-family: var(--font-mono);
+            font-weight: 600;
+        }
+
+        .badge-risk {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .badge-risk.high {
+            background: rgba(244, 63, 94, 0.15);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.3);
+        }
+
+        .badge-risk.med {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-risk.low {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-tooling {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-tooling.impacted {
+            background: rgba(239, 68, 68, 0.12);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+        }
+
+        .badge-tooling.safe {
+            background: rgba(100, 116, 139, 0.15);
+            color: #94a3b8;
+            border: 1px solid rgba(100, 116, 139, 0.25);
+        }
+
+        /* Strategy Section */
+        .strategy-box {
+            background: var(--bg-card);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border-card);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* Sign-Off / Approval Section */
+        .signoff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 16px;
+        }
+
+        .signoff-card {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 22px;
+            position: relative;
+        }
+
+        .signoff-role {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .signoff-dept {
+            font-size: 12px;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 18px;
+        }
+
+        .signoff-line {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.15);
+            margin: 40px 0 12px 0;
+            position: relative;
+        }
+
+        .signoff-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        .stamp-box {
+            display: inline-block;
+            border: 2px dashed rgba(16, 185, 129, 0.4);
+            color: #34d399;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+
+        /* Footer */
+        .dossier-footer {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-card);
+            font-family: var(--font-mono);
+        }
+
+        /* Print Media Styles */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+            }
+            .dossier-header, .kpi-card, .table-card, .signoff-card, .control-bar {
+                background: #ffffff !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+            }
+            .header-title, .section-title, .kpi-value, .tree-node .part-no {
+                color: #000000 !important;
+            }
+            .kpi-value.scrap { color: #dc2626 !important; }
+            .kpi-value.savings { color: #16a34a !important; }
+            table thead th {
+                background: #f1f5f9 !important;
+                color: #334155 !important;
+            }
+            tbody td {
+                color: #0f172a !important;
+                border-bottom: 1px solid #e2e8f0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dossier-container">
+
+    <!-- Document Control Bar -->
+    <div class="control-bar">
+        <div class="brand-meta">
+            <span class="brand-badge">CadencePLM</span>
+            <span class="doc-meta">DOC ID: <strong>ECN-DOC-ECO-AUTO-CF82BA</strong></span>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <span class="status-chip iatf">IATF 16949 / PPAP LEVEL 3</span>
+            <span class="status-chip pending">PENDING EXECUTIVE SIGN-OFF</span>
+        </div>
+    </div>
+
+    <!-- Dossier Main Header -->
+    <header class="dossier-header">
+        <div class="header-title-sub">IATF 16949 / PPAP ENGINEERING CHANGE NOTIFICATION (ECN) IMPACT DOSSIER</div>
+        <h1 class="header-title">Mühendislik Değişiklik Talebi ve Çok Boyutlu Etki Analiz Raporu</h1>
+        <p class="header-description">
+            Hedef Kök Montaj: <strong style="color: #fff;">GB-PINION-02</strong> | 
+            Oluşturulma: <span style="font-family: var(--font-mono);">2026-10-06 15:33:17 UTC</span> | 
+            Talep Özeti: <em>GB-PINION-02 pinyon dişlisinin toleransını revize ediyoruz, yeni rev B olacak</em>
+        </p>
+    </header>
+
+    <!-- Executive KPI Cards -->
+    <h2 class="section-title"><span class="icon">●</span> Yönetici Özeti & Finansal Metrikler</h2>
+    <div class="kpi-grid">
+        <div class="kpi-card">
+                <div class="kpi-label">Toplam Hurda Maliyeti</div>
+                <div class="kpi-value scrap">$7,425.00</div>
+                <div class="kpi-subtext">Stoktaki brüt potansiyel kayıp</div>
+            </div>
+<div class="kpi-card">
+                <div class="kpi-label">Rework Kurtarma Tasarrufu</div>
+                <div class="kpi-value savings">$6,311.25</div>
+                <div class="kpi-subtext">Kurtarma Oranı: %85.0</div>
+            </div>
+<div class="kpi-card">
+                <div class="kpi-label">Net Mali Risk Marjı</div>
+                <div class="kpi-value exposure">$1,113.75</div>
+                <div class="kpi-subtext">Rework sonrası net maruziyet</div>
+            </div>
+<div class="kpi-card">
+                <div class="kpi-label">Rework Durumu & Operasyon</div>
+                <div class="kpi-value savings" style="font-size: 20px;">Kurtarılabilir (CNC_TURNING)</div>
+                <div class="kpi-subtext">Birim Rework: $20.25</div>
+            </div>
+<div class="kpi-card">
+                <div class="kpi-label">Etkilenen Parça & Kalıp</div>
+                <div class="kpi-value neutral">1 Parça / 1 Kalıp</div>
+                <div class="kpi-subtext">Entegre alt montaj toplamı</div>
+            </div>
+<div class="kpi-card">
+                <div class="kpi-label">Kritik Yol Temin Süresi</div>
+                <div class="kpi-value neutral">30 Gün</div>
+                <div class="kpi-subtext">Maksimum tedarik teslim süresi</div>
+            </div>
+    </div>
+
+    <!-- Financial Trade-Off Banner -->
+    <div class="financial-comparison">
+        <div class="comp-info">
+            <h4>Endüstriyel Kurtarma Stratejisi: Hurda vs. Rework (Talaşlı İmalat)</h4>
+            <p>
+                Parça tolerans ve ölçüsel olarak kurtarılabilir durumdadır. Parçaları hurdaya çıkarmak yerine CNC Talaşlı İmalat ile operasyonel kurtarma önerilmektedir.
+            </p>
+        </div>
+        <div class="comp-badge">
+            +$6,311.25 TASARRUF (%85.0)
+        </div>
+    </div>
+
+    <!-- Where-Used Assembly Flow -->
+    <h2 class="section-title"><span class="icon">●</span> Where-Used Montaj Etki Şeması (Bottom-Up Traversal)</h2>
+    <div class="where-used-box">
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+            Değişiklik talep edilen parçadan ana kök montaja kadar olan yukarı yönlü hiyerarşik montaj bağı:
+        </p>
+        <div class="tree-flow"><div class="tree-node target">
+                <div class="level">Hedef Değişiklik</div>
+                <div class="part-no">GB-PINION-02</div>
+                <div class="part-name">Değiştirilen Parça</div>
+            </div> <div class="tree-arrow">➔</div> <div class="tree-node sub">
+                    <div class="level">Seviye 1 Üst Montaj</div>
+                    <div class="part-no">GBX-1300</div>
+                    <div class="part-name">Diferansiyel Çıkış Grubu</div>
+                </div> <div class="tree-arrow">➔</div> <div class="tree-node root">
+                    <div class="level">Seviye 2 Üst Montaj</div>
+                    <div class="part-no">GBX-1000</div>
+                    <div class="part-name">Şanzıman Ana Montajı</div>
+                </div></div>
+    </div>
+
+    <!-- Supplier & Tooling Risk Matrix -->
+    <h2 class="section-title"><span class="icon">●</span> Tedarikçi & Kalıp Risk Matrisi (BOM Detayları)</h2>
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Parça Kodu</th>
+                    <th>Parça Adı</th>
+                    <th>Tedarikçi</th>
+                    <th>Stok (Adet)</th>
+                    <th>Birim ($)</th>
+                    <th>Hurda ($)</th>
+                    <th>Kalıp Durumu</th>
+                    <th>Temin (Gün)</th>
+                    <th>Risk Skoru</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="td-mono">GB-PINION-02</td>
+                    <td>Ayna Pinyon Dişlisi</td>
+                    <td class="td-mono">SUP-GEAR-02</td>
+                    <td class="td-mono" style="text-align: right;">55</td>
+                    <td class="td-mono" style="text-align: right;">$135.00</td>
+                    <td class="td-mono" style="text-align: right; color: var(--accent-rose);">$7,425.00</td>
+                    <td style="text-align: center;"><span class="badge-tooling impacted">KALIP ETKİLENDİ</span></td>
+                    <td class="td-mono" style="text-align: center;">30 gün</td>
+                    <td style="text-align: center;"><span class="badge-risk high">YÜKSEK RİSK</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Cutover / Effectivity Strategy -->
+    <h2 class="section-title"><span class="icon">●</span> Yürürlük ve Stok Geçiş Stratejisi (Effectivity Strategy)</h2>
+    <div class="strategy-box">
+        
+        <h4 style='color: var(--accent-emerald); font-weight: 700;'>Önerilen Strateji: USE_UP_STOCK (Stok Tüketimi ile Geçiş)</h4>
+        <p style="font-size: 14px; color: var(--text-secondary); margin-top: 6px;">Yeni revizyona geçiş öncesi mevcut <strong>11 günlük</strong> stok tükenene kadar montaj hattında tüketime devam edilmesi önerilir. Bu sayede hurda maliyeti minimize edilir ve tedarik süresi (30 gün) boyunca hat duruşu engellenir.</p>
+        
+    </div>
+
+    <!-- Sign-off & Approvals Section -->
+    <h2 class="section-title"><span class="icon">●</span> İmza & Onay Bölümü (Executive Sign-Off & PPAP Release)</h2>
+    <div class="signoff-grid">
+        <div class="signoff-card">
+                    <div class="signoff-role">Ar-Ge & Ürün Geliştirme Direktörü</div>
+                    <div class="signoff-dept">Mühendislik & Yapısal Onay</div>
+                    <div style="font-size: 13px; color: var(--text-secondary);">Dr. M. Akın / Chief Engineer</div>
+                    <div class="signoff-line"></div>
+                    <div class="signoff-meta">
+                        <span>İmza: _______________</span>
+                        <span>Tarih: ____/____/2026</span>
+                    </div>
+                    <div class="stamp-box">✔ ELEKTRONİK ONAY HAZIR (PPAP-OK)</div>
+                </div>
+<div class="signoff-card">
+                    <div class="signoff-role">Satınalma & Tedarik Zinciri Müdürü</div>
+                    <div class="signoff-dept">Tedarik & Kalıp Maliyet Onayı</div>
+                    <div style="font-size: 13px; color: var(--text-secondary);">E. Yılmaz / Head of Procurement</div>
+                    <div class="signoff-line"></div>
+                    <div class="signoff-meta">
+                        <span>İmza: _______________</span>
+                        <span>Tarih: ____/____/2026</span>
+                    </div>
+                    <div class="stamp-box">✔ ELEKTRONİK ONAY HAZIR (PPAP-OK)</div>
+                </div>
+<div class="signoff-card">
+                    <div class="signoff-role">Kalite Güvence & PPAP Müdürü</div>
+                    <div class="signoff-dept">IATF 16949 & PPAP Seviye 3 Onayı</div>
+                    <div style="font-size: 13px; color: var(--text-secondary);">S. Demir / Quality Director</div>
+                    <div class="signoff-line"></div>
+                    <div class="signoff-meta">
+                        <span>İmza: _______________</span>
+                        <span>Tarih: ____/____/2026</span>
+                    </div>
+                    <div class="stamp-box">✔ ELEKTRONİK ONAY HAZIR (PPAP-OK)</div>
+                </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dossier-footer">
+        CADENCE PLM AUTOMOTIVE PLATFORM — ISO 10303-21 / IATF 16949 COMPLIANT — CONFIDENTIAL & PROPRIETARY
+    </footer>
+
+</div>
+
+</body>
+</html>

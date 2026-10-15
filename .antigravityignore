@@ -1,0 +1,35 @@
+# Git & Ortam
+.git/
+.venv/
+env/
+venv/
+__pycache__/
+*.pyc
+
+# CAD & Büyük 3D Geometri Dosyaları (Ajan okumamalı)
+*.step
+*.stp
+*.iges
+*.igs
+*.stl
+*.sldprt
+*.sldasm
+*.catpart
+*.catproduct
+*.dwg
+*.dxf
+
+# Ham Veri & Geçici Exportlar (Sample dosyalar hariç)
+data/raw/
+data/exports/
+*.parquet
+*.feather
+*.h5
+
+# Log & Test Çıktıları
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
