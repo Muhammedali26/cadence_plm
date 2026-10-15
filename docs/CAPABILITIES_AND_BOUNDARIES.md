@@ -37,15 +37,15 @@ Mühendislik Ürün Ağacı (EBOM), matematiksel olarak **Döngüsel Olmayan Yö
 Sistem, değişiklik durumunda stoktaki fiziksel parçaların hurdaya mı ayrılacağını yoksa talaşlı imalatla kurtarılıp kurtarılamayacağını belirler.
 
 - **Brüt Hurda Maliyeti Formülü:**
-  $$\text{Scrap Cost} = \sum_{i \in \text{Etkilenen Parçalar}} \text{round}(\text{stock\_quantity}_i \times \text{unit\_cost}_i, 2)$$
+  $$\text{Hurda Maliyeti} = \sum_{i \in \text{Etkilenen Parçalar}} (\text{Stok Adedi}_i \times \text{Birim Maliyet}_i)$$
 - **Kurtarılabilirlik (Rework Feasibility) Karar Mantığı:**
   1. Değişiklik türü `TOLERANCE` veya `DIMENSION` ise **VE** parça işlenebilir metal sınıfında ise (`pinion`, `shaft`, `gear`, `mil`, `dişli`, `burç`, `flanş`, `aks` vb.):
      - `is_reworkable = True`
      - Operasyon Türü: `CNC_TURNING` (CNC Torna / Taşlama)
-     - Parça Başı Rework Maliyeti:
-       $$\text{rework\_cost\_per\_unit} = \text{round}(\text{unit\_cost} \times 0.15, 2) \quad (\text{Birim maliyetin \%15'i})$$
-     - Net Kurtarma Tasarrufu:
-       $$\text{net\_savings} = \text{round}((\text{unit\_cost} - \text{rework\_cost\_per\_unit}) \times \text{stock\_quantity}, 2)$$
+     - Parça Başı Rework Maliyeti (`rework_cost_per_unit`):
+       $$\text{Rework Birim Maliyeti} = 0{,}15 \times \text{Birim Maliyet} \quad (\text{Birim maliyetin yüzde 15'i})$$
+     - Net Kurtarma Tasarrufu (`net_savings`):
+       $$\text{Net Kurtarma Tasarrufu} = (\text{Birim Maliyet} - \text{Rework Birim Maliyeti}) \times \text{Stok Adedi}$$
   2. Değişiklik türü `MATERIAL` (malzeme alaşımı değişimi) ise veya parça işlenemez standart bileşen ise (conta, o-ring, rulman, segman, civata, somun):
      - `is_reworkable = False`, `operation_type = NONE`
      - `rework_cost_per_unit = 0.00`, `net_savings = 0.00` (Hurda kaçınılmazdır).
@@ -56,16 +56,16 @@ Sistem, değişiklik durumunda stoktaki fiziksel parçaların hurdaya mı ayrıl
 Parça değişikliğinin devreye giriş tarihi için fabrikanın mevcut stoğunu tüketip tüketmeyeceğini matematiksel olarak hesaplar.
 
 - **Stok Tüketim Süresi (Run-Out Days):**
-  $$\text{run\_out\_days} = \left\lceil \frac{\text{stock\_quantity}}{\text{daily\_consumption\_rate}} \right\rceil \quad (\text{Varsayılan: 5 adet/gün})$$
+  $$\text{Run-Out (Tüketim Gün)} = \left\lceil \frac{\text{Stok Miktarı}}{\text{Günlük Tüketim Hızı}} \right\rceil \quad (\text{Varsayılan: 5 adet/gün})$$
 - **Karar Algoritması:**
-  - $\text{run\_out\_days} \le \text{tooling\_lead\_time\_days}$ ise:
+  - $\text{Run-Out Gün} \le \text{Kalıp Teslim Süresi}$ ise:
     - **Strateji:** `USE_UP_STOCK` (Stoğu Bitir)
-    - **Geçiş Süresi:** $\text{run\_out\_days}$ iş günü
-    - **Hurda Maliyeti:** $0.00$ USD (Mevcut stok montajda doğal olarak tüketilir, sıfır hurda ile yeni revizyona geçilir).
-  - $\text{run\_out\_days} > \text{tooling\_lead\_time\_days}$ ise:
+    - **Geçiş Süresi:** Run-Out süresi (iş günü)
+    - **Hurda Maliyeti:** 0.00 USD (Mevcut stok montajda doğal olarak tüketilir, sıfır hurda ile yeni revizyona geçilir).
+  - $\text{Run-Out Gün} > \text{Kalıp Teslim Süresi}$ ise:
     - **Strateji:** `IMMEDIATE_CUTOFF` (Derhal Kesinti)
-    - **Geçiş Süresi:** $0$ gün (Yeni parça geldiği an hat revize edilir)
-    - **Hurda Maliyeti:** $\text{round}(\text{stock\_quantity} \times \text{unit\_cost}, 2)$ (Eski stok derhal hurdaya yazılır).
+    - **Geçiş Süresi:** 0 gün (Yeni parça geldiği an hat revize edilir)
+    - **Hurda Maliyeti:** $\text{Stok Miktarı} \times \text{Birim Maliyet}$ (Eski stok derhal hurdaya yazılır).
 
 ---
 

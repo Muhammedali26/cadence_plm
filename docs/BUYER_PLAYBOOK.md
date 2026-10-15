@@ -29,16 +29,14 @@ Müşteriye yöneltilen temel soru:
 
 ### Finansal Getiri Özeti (Yıllık Kazanç)
 
-$$\begin{aligned}
-\text{Analiz Süresi Tasarrufu (\%85 azalma)} &= 142.800\ \$ \\
-\text{Hurda Tasarrufu (Rework Kurtarma)} &= 42.000\ \$ \\
-\text{Önlenen Hat Duruşu Riski (1 vaka)} &= 54.000\ \$ \\
-\hline
-\mathbf{\text{Toplam Yıllık Brüt Tasarruf}} &= \mathbf{238.800\ \$} \\
-\text{CadencePLM Lisans Bedeli} &= -60.000\ \$ \\
-\hline
-\mathbf{\text{Net Yıllık Kazanç}} &= \mathbf{+178.800\ \$} \quad (\mathbf{\%298\ \text{Net ROI}})
-\end{aligned}$$
+| Finansal Kalem | Yıllık Parasal Değer |
+| :--- | :--- |
+| **Analiz Süresi Tasarrufu** (35 ECO/yıl, %85 azalma) | +142.800 $ |
+| **Hurda Tasarrufu** (Rework / CNC Kurtarma) | +42.000 $ |
+| **Önlenen Hat Duruşu Riski** (1 vaka @ 1.200 $/dk) | +54.000 $ |
+| **Toplam Yıllık Brüt Tasarruf** | **+238.800 $** |
+| **CadencePLM Lisans Bedeli** | -60.000 $ |
+| **Net Yıllık Kazanç** | **+178.800 $ (%298 Net ROI)** |
 
 **Amortisman Süresi:** 2. büyük ECO değişikliğinde (yaklaşık **2,5 ayda**) sistem kendi lisans bedelini amorti eder.
 

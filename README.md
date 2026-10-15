@@ -93,7 +93,7 @@ flowchart TD
 
 ### 4.2 Scrap vs. Rework Optimization Engine
 - **Gross Scrap Cost Formula:**
-  $$\text{Scrap Cost} = \sum_{i \in \text{Impacted Parts}} \text{round}(\text{stock\_quantity}_i \times \text{unit\_cost}_i, 2)$$
+  $$\text{Scrap Cost} = \sum_{i \in \text{Impacted Parts}} (\text{Stock}_i \times \text{Unit Cost}_i)$$
 - **Machinable Metal Rules:** Detects shafts, pinions, gears, bushings, and axles. If change type is `TOLERANCE` or `DIMENSION`:
   - `rework_cost_per_unit = round(unit_cost * 0.15, 2)` (15% CNC turning salvage cost)
   - `net_savings = round((unit_cost - rework_cost_per_unit) * stock_quantity, 2)`
@@ -101,10 +101,10 @@ flowchart TD
 
 ### 4.3 Effectivity & Stock Run-Out Planning
 - **Stock Depletion Days:**
-  $$\text{run\_out\_days} = \left\lceil \frac{\text{stock\_quantity}}{\text{daily\_consumption\_rate}} \right\rceil \quad (\text{Default: 5 units/day})$$
+  $$\text{Run-Out Days} = \left\lceil \frac{\text{Stock Quantity}}{\text{Daily Consumption Rate}} \right\rceil \quad (\text{Default: 5 units/day})$$
 - **Decision Logic:**
-  - $\text{run\_out\_days} \le \text{tooling\_lead\_time\_days} \implies$ **`USE_UP_STOCK`** (Transition duration = run-out days, Scrap cost = $0.00).
-  - $\text{run\_out\_days} > \text{tooling\_lead\_time\_days} \implies$ **`IMMEDIATE_CUTOFF`** (Immediate cutoff once new tooling arrives, remaining inventory scrapped).
+  - $\text{Run-Out Days} \le \text{Tooling Lead Time} \implies$ **`USE_UP_STOCK`** (Transition duration = run-out days, Scrap cost = $0.00).
+  - $\text{Run-Out Days} > \text{Tooling Lead Time} \implies$ **`IMMEDIATE_CUTOFF`** (Immediate cutoff once new tooling arrives, remaining inventory scrapped).
 
 ### 4.4 Lightweight ISO 10303-21 STEP CAD Parser
 - Pure Python ASCII parser without OpenCASCADE or C++ bindings.
@@ -121,16 +121,14 @@ flowchart TD
 
 For an enterprise buyer (VP of Engineering / Plant Manager / Procurement Director):
 
-$$\begin{aligned}
-\text{Annual Engineering Hours Saved (35 ECOs/year)} &= \$142,800 \\
-\text{Scrap Saved via CNC Rework Salvage} &= \$42,000 \\
-\text{Prevented Line Stoppage (1 incident @ \$1,200/min)} &= \$54,000 \\
-\hline
-\mathbf{\text{Total Annual Gross Benefit}} &= \mathbf{\$238,800} \\
-\text{Annual CadencePLM License Fee} &= -\$60,000 \\
-\hline
-\mathbf{\text{Net Annual Return}} &= \mathbf{+\$178,800 \quad (298\%\ \text{Net ROI})}
-\end{aligned}$$
+| Commercial Metric | Annual Financial Impact |
+| :--- | :--- |
+| **Engineering Analysis Time Saved** (35 ECOs/year, 85% reduction) | +$142,800 |
+| **Scrap Saved via CNC Rework Salvage** | +$42,000 |
+| **Prevented Assembly Line Stoppage** (1 incident @ $1,200/min) | +$54,000 |
+| **Total Annual Gross Benefit** | **+$238,800** |
+| **CadencePLM Annual License Fee** | -$60,000 |
+| **Net Annual Value Generated** | **+$178,800 (298% Net ROI)** |
 
 *Payback period: Achieved on the **2nd major ECO** (approximately **2.5 months**).*  
 *Full details and objection battlecards in [docs/BUYER_PLAYBOOK.md](file:///c:/Users/HP/Desktop/rag&fine-tune%20projects/cadence_plm/docs/BUYER_PLAYBOOK.md).*
@@ -279,7 +277,7 @@ CadencePLM, mimarisinde **Deterministik Ayrım İlkesini** ([`.antigravityrules 
 
 ### 4.2 Hurda vs. Kurtarma (Rework) Optimizasyon Motoru
 - **Brüt Hurda Maliyeti Formülü:**
-  $$\text{Hurda Maliyeti} = \sum_{i \in \text{Etkilenen Parçalar}} \text{round}(\text{stok\_adedi}_i \times \text{birim\_maliyet}_i, 2)$$
+  $$\text{Hurda Maliyeti} = \sum_{i \in \text{Etkilenen Parçalar}} (\text{Stok Adedi}_i \times \text{Birim Maliyet}_i)$$
 - **Talaşlı İmalat Kurtarma:** Mil, pinyon, dişli, burç ve flanş gibi işlenebilir metal parçalarda değişiklik tipi `TOLERANCE` veya `DIMENSION` ise:
   - `rework_cost_per_unit = round(unit_cost * 0.15, 2)` (Birim maliyetin %15'i CNC tornalama maliyeti)
   - `net_savings = round((unit_cost - rework_cost_per_unit) * stock_quantity, 2)`
@@ -287,10 +285,10 @@ CadencePLM, mimarisinde **Deterministik Ayrım İlkesini** ([`.antigravityrules 
 
 ### 4.3 Yürürlük ve Stok Run-Out Planlama Motoru
 - **Stok Tüketim Süresi (Run-Out Days):**
-  $$\text{run\_out\_days} = \left\lceil \frac{\text{stok\_miktari}}{\text{gunluk\_tuketim\_hizi}} \right\rceil \quad (\text{Varsayılan: 5 adet/gün})$$
+  $$\text{Run-Out (Tüketim Gün)} = \left\lceil \frac{\text{Stok Miktarı}}{\text{Günlük Tüketim Hızı}} \right\rceil \quad (\text{Varsayılan: 5 adet/gün})$$
 - **Karar Mantığı:**
-  - $\text{run\_out\_days} \le \text{kalip\_teslim\_suresi} \implies$ **`USE_UP_STOCK`** (Stok doğal olarak tüketilir, Hurda Maliyeti = 0.00 $).
-  - $\text{run\_out\_days} > \text{kalip\_teslim\_suresi} \implies$ **`IMMEDIATE_CUTOFF`** (Kalıp geldiği an kesilir, kalan stok hurdaya ayrılır).
+  - $\text{Run-Out Gün} \le \text{Kalıp Teslim Süresi} \implies$ **`USE_UP_STOCK`** (Stok doğal olarak tüketilir, Hurda Maliyeti = 0.00 $).
+  - $\text{Run-Out Gün} > \text{Kalıp Teslim Süresi} \implies$ **`IMMEDIATE_CUTOFF`** (Kalıp geldiği an kesilir, kalan stok hurdaya ayrılır).
 
 ### 4.4 Hafif ISO 10303-21 STEP CAD Ayrıştırıcısı
 - Ağır C++ kütüphaneleri olmaksızın saf Python ortamında ASCII STEP dosyalarını okur.
@@ -307,16 +305,14 @@ CadencePLM, mimarisinde **Deterministik Ayrım İlkesini** ([`.antigravityrules 
 
 Tipik bir Tier-1 aktarma organları fabrikası için:
 
-$$\begin{aligned}
-\text{Yıllık Mühendislik Zaman Tasarrufu (35 ECO/yıl)} &= 142.800\ \$ \\
-\text{Kurtarılan Parça Tasarrufu (CNC Rework)} &= 42.000\ \$ \\
-\text{Önlenen Hat Duruşu Riski (1 vaka @ 1.200 \$/dk)} &= 54.000\ \$ \\
-\hline
-\mathbf{\text{Toplam Yıllık Brüt Tasarruf}} &= \mathbf{238.800\ \$} \\
-\text{CadencePLM Yıllık Lisans Bedeli} &= -60.000\ \$ \\
-\hline
-\mathbf{\text{Net Yıllık Getiri}} &= \mathbf{+178.800\ \$ \quad (\%298\ \text{Net ROI})}
-\end{aligned}$$
+| Finansal Metrik | Yıllık Parasal Etki |
+| :--- | :--- |
+| **Mühendislik Analiz Zaman Tasarrufu** (35 ECO/yıl, %85 azalma) | +142.800 $ |
+| **CNC Rework ile Kurtarılan Hurda Sermayesi** | +42.000 $ |
+| **Önlenen Montaj Hattı Duruşu Riski** (1 vaka @ 1.200 $/dk) | +54.000 $ |
+| **Toplam Yıllık Brüt Getiri** | **+238.800 $** |
+| **CadencePLM Yıllık Lisans Bedeli** | -60.000 $ |
+| **Net Yıllık Şirket Kazancı** | **+178.800 $ (%298 Net ROI)** |
 
 *Amortisman Süresi: **2. büyük ECO değişikliğinde (~2,5 ayda)** lisans bedeli amorti edilir.*  
 *Detaylı itiraz yanıtlama ve demo konuşma metinleri için [docs/BUYER_PLAYBOOK.md](file:///c:/Users/HP/Desktop/rag&fine-tune%20projects/cadence_plm/docs/BUYER_PLAYBOOK.md) dokümanını inceleyin.*
