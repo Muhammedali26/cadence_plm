@@ -1,4 +1,158 @@
-# CadencePLM – Sistem Yetenekleri ve Mimari Sınırlar Dokümanı (Capabilities & Boundaries)
+# CadencePLM – System Capabilities & Architectural Boundaries (Capabilities & Boundaries)
+> **Bilingual Technical Specification / İki Dilli Teknik Şartname**  
+> *English version is presented first, followed by the Turkish version below.*  
+> *Önce İngilizce versiyon sunulmuştur; Türkçe versiyon belgenin devamında yer almaktadır.*
+
+---
+
+# [ENGLISH] System Capabilities & Architectural Boundaries
+
+This document defines with industrial precision the core capabilities, deterministic mathematical models, architectural boundaries, intentional non-capabilities, and data interface protocols of the **CadencePLM** autonomous Engineering Change Order (ECO) decision-support system.
+
+---
+
+## PART 1: CORE CAPABILITIES (WHAT CAN IT DO?)
+
+### 1.1 Unstructured Text Extraction (Free-Text ECO Parsing)
+CadencePLM transforms natural language change requests written by plant engineers and shop floor operators into strongly-typed Pydantic v2 data models (`ECORequest`).
+
+- **Extracted Parameters:**
+  - `affected_part_number` (str): Target component identifier undergoing modification (e.g., `GB-PINION-02`, `GBX-1210`). The system resolves automotive engineering aliases (e.g., `GB-SHAFT-01` $\rightarrow$ `GBX-1210`).
+  - `target_revision` (str): Target engineering revision level (e.g., `Rev-B`, `C`, `B`).
+  - `change_type` (Enum): `TOLERANCE` (tolerance tightening/widening), `MATERIAL` (alloy or raw material change), `GEOMETRY` (dimensional revision), `OBSOLETE` (part phase-out).
+  - `eco_id` (str): Explicitly stated identifier in the text (`ECO-2024-0099`) or an automatically generated unique key (`ECO-AUTO-XXXXXX`).
+  - `description` (str): Concise technical summary of the modification.
+- **Execution Mechanism:**
+  - Primary Route: Google Gemini / OpenAI structured JSON extraction (when active API key is provided).
+  - Deterministic Fallback: Fully local, regex-based syntactic parser engine (operates with zero internet connectivity and zero external API dependencies).
+
+---
+
+### 1.2 Deterministic BOM Tree Traversal (DAG) & Where-Used Analysis
+The Engineering Bill of Materials (EBOM) is modeled mathematically as a **Directed Acyclic Graph (DAG)**.
+
+- **Top-Down Impact Traversal (`get_affected_subassemblies`):**
+  - Traverses downward from the modified component using BFS/DFS to identify all direct and indirect children, subassemblies, and leaf parts.
+  - Cycle Detection: A strict `visited_parts` set detects circular dependencies; when a loop is encountered, the system raises `BOMStructureError` immediately rather than silently looping.
+- **Bottom-Up Parent Where-Used Chain (`get_where_used`):**
+  - Resolves all parent assemblies up to the root level (L0), documenting hierarchical depths (`assembly_level: 1, 2, ... N`).
+  - **Maximum Depth:** Unlimited ($N$ levels). For example, in a heavy-duty gearbox:
+    `GB-PINION-02` (Leaf) $\rightarrow$ `GBX-1300` (Level 1: Output Differential) $\rightarrow$ `GBX-1000` (Level 2: Main Gearbox Assembly).
+
+---
+
+### 1.3 Scrap Cost & Salvage (Rework) Optimization Engine
+The engine computes whether physical inventory must be scrapped or whether components can be salvaged via precision CNC secondary machining operations.
+
+- **Gross Scrap Cost Formula:**
+  $$\text{Scrap Cost} = \sum_{i \in \text{Impacted Parts}} (\text{Stock}_i \times \text{Unit Cost}_i)$$
+- **Rework Feasibility Decision Logic:**
+  1. If change type is `TOLERANCE` or `DIMENSION` **AND** the component belongs to machinable metal classes (`pinion`, `shaft`, `gear`, `bushing`, `flange`, `axle`, etc.):
+     - `is_reworkable = True`
+     - Operation Type: `CNC_TURNING` (CNC lathe turning / cylindrical grinding)
+     - Per-Unit Rework Cost (`rework_cost_per_unit`):
+       $$\text{Rework Cost Per Unit} = 0.15 \times \text{Unit Cost} \quad (15\%\ \text{of unit cost})$$
+     - Net Salvage Savings (`net_savings`):
+       $$\text{Net Savings} = (\text{Unit Cost} - \text{Rework Cost Per Unit}) \times \text{Stock Quantity}$$
+  2. If change type is `MATERIAL` (alloy change, e.g., 16MnCr5 to 42CrMo4 steel) or the component is a non-machinable standard part (elastomeric seal, O-ring, bearing, circlip, fastener):
+     - `is_reworkable = False`, `operation_type = NONE`
+     - `rework_cost_per_unit = 0.00`, `net_savings = 0.00` (Scrap is mandatory).
+
+---
+
+### 1.4 Effectivity & Run-Out Planning Engine
+Calculates whether the manufacturing facility should exhaust current stock or enforce an immediate transition when tooling arrives.
+
+- **Stock Depletion Duration (Run-Out Days):**
+  $$\text{Run-Out Days} = \left\lceil \frac{\text{Stock Quantity}}{\text{Daily Consumption Rate}} \right\rceil \quad (\text{Default: 5 units/day})$$
+- **Decision Algorithm:**
+  - If $\text{Run-Out Days} \le \text{Tooling Lead Time}$:
+    - **Strategy:** `USE_UP_STOCK` (Exhaust Existing Inventory)
+    - **Transition Lead Time:** Run-out duration (working days)
+    - **Scrap Cost:** $0.00 (Stock is naturally consumed on assembly line; zero scrap incurred).
+  - If $\text{Run-Out Days} > \text{Tooling Lead Time}$:
+    - **Strategy:** `IMMEDIATE_CUTOFF` (Immediate Hard Cut-Off)
+    - **Transition Lead Time:** 0 days once tooling arrives
+    - **Scrap Cost:** $\text{Stock Quantity} \times \text{Unit Cost}$ (Remaining stock is written off to avoid line stoppage).
+
+---
+
+### 1.5 ISO 10303-21 STEP AP214 CAD Metadata Parser
+CadencePLM parses standard ISO 10303-21 ASCII STEP files in pure Python without requiring heavy C++ geometry kernels (OpenCASCADE, FreeCAD).
+
+- **Parsed Standard STEP Entities:**
+  - `PRODUCT_DEFINITION` & `PRODUCT_DEFINITION_FORMATION`: Part names, CAD part numbers, and revision tags.
+  - `NEXT_ASSEMBLY_USAGE_OCCURRENCE`: Hierarchical parent-child links, assembly constraints, and occurrence quantities (`quantity`).
+- **Output:** Produces a native `list[BOMItem]` directly from CAD files and loads them into `BOMTreeEngine`.
+
+---
+
+### 1.6 IATF 16949 / PPAP Level 3 Compliant ECO Dossier Generation
+Transforms simulation results into an audit-ready, executive HTML/CSS report (`reports/ECO_IMPACT_REPORT_{eco_id}.html`) adhering to automotive quality standards (IATF 16949 Clause 8.5.6 and AIAG/VDA PPAP Level 3).
+
+- **Dossier Sections:**
+  - Financial Trade-Off KPI Cards (Gross Scrap Risk vs. Rework Net Savings vs. Net Financial Exposure).
+  - Where-Used Visual Assembly Flow & Component Impact Matrix.
+  - Supplier Tooling Risk Assessment (Tooling codes and critical lead-time days).
+  - Tripartite Sign-off Block: **R&D Director**, **Procurement Manager**, and **Quality Assurance Manager**.
+
+---
+
+## PART 2: ARCHITECTURAL BOUNDARIES & NON-CAPABILITIES (WHAT CAN IT NOT DO?)
+
+### 2.1 AI Hallucination Boundary (LLM vs. Deterministic Engine Separation)
+- **CANNOT DO:** The LLM (GPT-4o / Gemini) is strictly forbidden from performing multiplication, computing scrap costs, evaluating run-out days, or traversing BOM hierarchies.
+- **ARCHITECTURAL RULE:** Per `.antigravityrules §1`, all mathematical, financial, and structural computations are strictly executed by deterministic Python engines (`src/engines/`).
+- **LLM Role:** The LLM's role is restricted to parsing unstructured natural language requests into structured tool calls and synthesizing engine numbers into natural language summaries. If external APIs fail or are unavailable, CadencePLM continues to function with 100% deterministic accuracy.
+
+---
+
+### 2.2 CAD & Geometric Calculation Boundaries
+- **CANNOT DO:**
+  - No 3D surface collision or geometric interference checking.
+  - No Finite Element Analysis (FEA) stress/strain or fatigue simulation.
+  - No 1D/3D tolerance stack-up analysis.
+- **SCOPE:** Reads assembly graph topology, occurrence counts, and part metadata from STEP AP203/AP214 files. It is an engineering BOM decision engine, not a solid modeling CAD renderer.
+
+---
+
+### 2.3 ERP / PLM Integration & Write Boundaries (Read-Only Principle)
+- **CANNOT DO:** Does not perform automated write-back, transactional record commits, or database mutations into live SAP S/4HANA or Siemens Teamcenter databases.
+- **ARCHITECTURAL PRINCIPLE:** CadencePLM operates as a **Salt-Okunur / Read-Only Decision-Support Simulator**.
+  - Ingests snapshot data from ERP and PLM.
+  - Executes simulation and renders an IATF 16949 compliant ECN dossier.
+  - Actual ERP commits remain under human governance (Human-in-the-Loop) following formal executive approvals.
+
+---
+
+### 2.4 Scalability & Performance Limits
+- **In-Memory Pandas / Graph Engine Capacity:**
+  - $\le 10,000$ BOM parts: Sub-millisecond response ($< 50\text{ ms}$).
+  - $10,000 - 50,000$ BOM parts: Negligible memory consumption ($< 500\text{ ms}$).
+  - $> 100,000$ parts (e.g., complete commercial aircraft or marine vessel): Single-process in-memory Pandas DataFrames become memory-constrained; at this scale, the engine connects to a distributed graph database (Neo4j / Memgraph).
+
+---
+
+## PART 3: DATA INPUT FORMATS & PROTOCOLS
+
+### 3.1 Supported Formats & Schemas
+
+| Domain | Supported Formats | Required Fields / Standard |
+| :--- | :--- | :--- |
+| **EBOM Data** | CSV, Pandas DataFrame, FastMCP Stream | `part_number`, `part_name`, `revision`, `parent_part_number`, `quantity`, `unit_cost`, `supplier_id` (Optional: `tooling_id`) |
+| **Inventory Data** | CSV, Pandas DataFrame, SAP API JSON | `part_number`, `stock_quantity`, `lead_time_days`, `location` |
+| **3D CAD Model** | ISO 10303-21 STEP (`.step`, `.stp`) | AP203 or AP214 application protocol |
+| **API Endpoints** | REST JSON, Multipart Form-Data | `POST /api/v1/simulate`, `POST /api/v1/agent/analyze` |
+| **Protocols** | FastMCP (Model Context Protocol) | stdio, JSON-RPC 2.0 (`tool_get_ebom`, `tool_get_inventory`, `tool_run_impact_simulation`) |
+
+### 3.2 Unsupported Formats
+- Proprietary Binary CAD Formats: `.sldprt` / `.sldasm` (SolidWorks), `.catpart` / `.catproduct` (CATIA), `.prt` (NX). *These files must be exported to standard STEP AP214 prior to ingestion.*
+- Non-tabular, unstructured plain text or scanned PDFs (cannot be directly loaded as BOMs; they must pass through the unstructured text extraction layer).
+
+---
+---
+
+# [TÜRKÇE] Sistem Yetenekleri ve Mimari Sınırlar Dokümanı
 
 Bu doküman, **CadencePLM** otonom mühendislik değişiklik yönetimi (ECO) karar destek sisteminin çekirdek yeteneklerini, matematiksel modellerini, mimari sınırlarını, yapamadığı işlemleri ve veri iletişim protokollerini teknik kesinlikle tanımlar.
 

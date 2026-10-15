@@ -1,4 +1,143 @@
-# CadencePLM – Kurumsal Satış ve Değer Kanıtlama Kılavuzu (Buyer Playbook)
+# CadencePLM – Enterprise Buyer Playbook & Commercial Value Card (Buyer Playbook)
+> **Bilingual Commercial & Sales Enablement Guide / İki Dilli Kurumsal Satış Kılavuzu**  
+> *English version is presented first, followed by the Turkish version below.*  
+> *Önce İngilizce versiyon sunulmuştur; Türkçe versiyon belgenin devamında yer almaktadır.*
+
+---
+
+# [ENGLISH] Enterprise Buyer Playbook & Battlecard
+
+This playbook defines the commercial value proposition, return on investment (ROI) economic model, technical objection handling, and live demo runbooks for deploying **CadencePLM** within Tier-1 and Tier-2 automotive and industrial manufacturers.
+
+---
+
+## 1. TARGET BUYER PERSONAS (ICP & DECISION MAKERS)
+
+| Executive Role | Primary Pain Point / Operational Risk | CadencePLM Value Proposition |
+| :--- | :--- | :--- |
+| **VP of Engineering / R&D Director** | Inability to immediately forecast down-line assembly impact; risk of manual Excel Where-Used errors; recurring IATF 16949 audit non-conformances. | Resolves complete top-down and bottom-up DAG Where-Used chains to root assembly in milliseconds; auto-generates audit-ready IATF 16949 / PPAP Level 3 impact dossiers. |
+| **Plant Manager / COO / Head of Operations** | Unplanned assembly line shutdowns due to miscalculated effectivity cut-offs (Automotive line stoppage costs: **~$1,200/minute**); obsolete inventory lingering in buffer warehouses. | Compares `run_out_days` against supplier tooling lead times using deterministic mathematics to decide `USE_UP_STOCK` vs. `IMMEDIATE_CUTOFF`, preventing buffer shortages. |
+| **Head of Procurement / Supply Chain Director** | Unnecessary bulk scrapping of parts undergoing minor tolerance tightening; blind spots regarding supplier die/tooling changeover lead times. | Evaluates precision secondary machining (CNC turning/grinding) feasibility; salvages existing inventory at 15% unit cost, shielding quarterly scrap reserves. |
+
+---
+
+## 2. ROI CALCULATION & VALUE FINANCIAL MODEL
+
+The core commercial question posed by enterprise CFOs:  
+> *"We pay an annual enterprise license fee of $60,000 for CadencePLM. How does this system pay for itself within the first quarter?"*
+
+### Baseline Scenario (Typical Tier-1 Transmission / Drivetrain Plant)
+- **Annual Average ECO Count:** 35 engineering change orders per year.
+- **Manual Engineering Labor Per ECO:** 3 senior engineers (R&D, Manufacturing, Procurement) $\times$ 4 working days = 96 engineering hours.
+  - Fully burdened rate: $50/hour $\rightarrow$ **$4,800** in manual engineering analysis cost per ECO.
+  - Annual manual analysis burden: $35 \times 4,800 = \mathbf{\$168,000}$.
+- **Erroneous Scrap vs. Rework Losses:** In ~4 ECOs per year, salvageable parts are mistakenly scrapped in haste (average scrap write-off of $12,000 per ECO = **$48,000/year**).
+- **Assembly Line Stoppage Risk:** At least 1 annual incident where existing inventory is prematurely cut off before supplier tooling is qualified, causing a 45-minute assembly stoppage ($45\text{ min} \times \$1,200/\text{min} = \mathbf{\$54,000}$).
+
+### Financial Return Summary (Annual Net Value)
+
+| Financial Metric | Annual Financial Value |
+| :--- | :--- |
+| **Engineering Analysis Time Saved** (35 ECOs/yr, 85% reduction) | +$142,800 |
+| **Scrap Saved via Precision CNC Rework** | +$42,000 |
+| **Prevented Assembly Line Stoppage** (1 incident @ $1,200/min) | +$54,000 |
+| **Total Annual Gross Benefit** | **+$238,800** |
+| **CadencePLM Enterprise License Fee** | -$60,000 |
+| **Net Annual Enterprise Benefit** | **+$178,800 (298% Net ROI)** |
+
+**Payback Period:** CadencePLM pays for its entire annual license fee upon the **second major ECO** (approximately **2.5 months** into deployment).
+
+---
+
+## 3. TOP 5 TOUGHEST CUSTOMER OBJECTIONS & ENGINEERING ANSWERS
+
+### Objection 1: *"We already invested millions in SAP S/4HANA and Siemens Teamcenter. Why do we need this?"*
+> **Engineering Answer:**  
+> "Siemens Teamcenter manages CAD geometry and engineering revisions; SAP S/4HANA manages physical warehouse counts and purchase orders. Neither system talks to the other to answer: *'If we tighten the pinion tolerance by 0.02 mm, can our 55 on-hand gears be salvaged on a CNC lathe for $20 each, or must we scrap $7,400 in stock and wait 30 days for new tooling?'*  
+> CadencePLM does not replace your ERP or PLM investments. It sits on top of them as a 10-second autonomous trade-off decision simulator, eliminating weeks of cross-departmental alignment meetings and error-prone Excel spreadsheets."
+
+---
+
+### Objection 2: *"If an LLM hallucinates a cost formula or tolerance threshold, our assembly line could shut down!"*
+> **Engineering Answer:**  
+> "In CadencePLM's architecture, the AI **NEVER** performs arithmetic calculations, cost multiplication, or graph traversals (`.antigravityrules §1`).  
+> Scrap costs, Where-Used hierarchies, CNC turning salvage math, and inventory run-out durations are computed entirely by deterministic, pure Python engines. The LLM (OpenAI GPT-4o) is used exclusively to interpret unstructured engineer text and format the engine's hard numbers into executive summaries. Even if internet or external API access drops completely, our deterministic engines continue executing with 100% mathematical precision."
+
+---
+
+### Objection 3: *"Are our proprietary 3D CAD models and bill-of-materials sent to OpenAI? Is our intellectual property (IP) at risk?"*
+> **Engineering Answer:**  
+> "Absolutely not. Your 3D CAD files, geometry data, and STEP models never leave your private server; they are parsed strictly in-memory by our local ISO 10303-21 CAD parser.  
+> Only the high-level textual ECO description is processed by the language model. Furthermore, our enterprise deployment supports local self-hosted open-source models (Llama 3 via vLLM) on private on-premise hardware, as well as isolated, zero-retention Microsoft Azure OpenAI corporate tenants."
+
+---
+
+### Objection 4: *"Our bill of materials and assemblies are non-standard and highly customized."*
+> **Engineering Answer:**  
+> "CadencePLM is built on standard Directed Acyclic Graph (DAG) graph theory rather than rigid naming templates. Whether modeling a simple 3-piece sheet metal bracket or a 15-level dual-clutch transmission, parent-child relationships and cycle detection are resolved with mathematical rigor. If a circular loop is ever introduced, the system raises `BOMStructureError` immediately, isolating corrupted input before it impacts operations."
+
+---
+
+### Objection 5: *"Will integration take months and disrupt our enterprise IT roadmap?"*
+> **Engineering Answer:**  
+> "No. CadencePLM is built on modern microservices and ships with turnkey `Docker` and `Docker-Compose` configurations. Deployment takes under 5 minutes.  
+> Once your team provides a standard SAP inventory export and an EBOM CSV or STEP file from Teamcenter, the live cockpit is immediately operational. No heavy database migrations, schema redesigns, or months of ERP consultancy required."
+
+---
+
+## 4. 3 GOLDEN DEMO SCENARIOS (STEP-BY-STEP LIVE RUNBOOK)
+
+When presenting to customer leadership on the live UI (`http://localhost:8501`), execute these 3 scenarios in sequence:
+
+```
++-----------------------------------------------------------------------------------------+
+|                                    LIVE DEMO RUNBOOK                                    |
+|                                                                                         |
+|  [Scenario 1: Salvage]       --->   [Scenario 2: Unavoidable Scrap] ---> [Scenario 3: ECN]   |
+|  GB-PINION-02 Tolerance             GB-SHAFT-01 Material Alloy          Official Audit HTML |
+|  (+$6,311 Net CNC Savings)          ($32,650 Risk & Tooling Lead Time)  Dossier Generation  |
++-----------------------------------------------------------------------------------------+
+```
+
+---
+
+### Scenario 1: Machinable Salvage Case (GB-PINION-02 Tolerance Tightening)
+- **Action:** Click `Scenario 1: GB-PINION-02 Tolerance Tightening (Reworkable)` in the sidebar and press `🚀 Run Simulation & Autonomous Agent`.
+- **Key Display Elements:**
+  - KPI Cards: *Total Scrap Cost:* $7,425.00 | *Rework Savings:* **+$6,311.25 Net Savings** | *Run-Out Days:* 11 Days (`USE_UP_STOCK`).
+  - Plotly Chart: Visual bar comparison of Gross Scrap vs. Net Salvage Savings.
+  - Where-Used Assembly Path: `GB-PINION-02 ➔ GBX-1300 ➔ GBX-1000`.
+- **Presenter Pitch Script:**
+  > *"Mr. Plant Manager, under standard operating procedures, when a pinion gear's tolerance is tightened, warehouse stock is flagged as non-conforming and $7,425 is written off to scrap.  
+  > CadencePLM immediately recognized the part class (machinable alloy gear) and operation type (CNC lathe turning). It determined that for just 15% of unit cost ($20.25), the batch can be salvaged on existing plant machinery, saving your facility **$6,311 in net cash** with a single click."*
+
+---
+
+### Scenario 2: Unavoidable Scrap & Supplier Tooling Risk (GB-SHAFT-01 Material Change)
+- **Action:** Select `Scenario 2: GB-SHAFT-01 Shaft Material Alloy Change (Scrap Unavoidable)` and execute.
+- **Key Display Elements:**
+  - KPI Cards: *Total Scrap Cost:* **$32,650.00** | *Rework:* $0.00 (No Salvage Possible) | *Critical Tooling Lead Time:* 28 Days.
+  - Executive Summary: Autonomous explanation that changing from 16MnCr5 to 42CrMo4 alloy renders secondary machining impossible, necessitating controlled scrap write-off.
+- **Presenter Pitch Script:**
+  > *"Here we examine an alloy change. CadencePLM does not blindly recommend rework; it recognizes that raw material changes make machining salvage impossible and flags scrap as mandatory.  
+  > Furthermore, it mapped the entire impact tree down to the drive gears and bearings on this shaft, presenting a full $32,650 risk exposure chain and a 28-day supplier die lead time so Procurement never faces an unexpected line halt."*
+
+---
+
+### Scenario 3: IATF 16949 / PPAP Official ECN Dossier Download & Sign-off
+- **Action:** Click `📥 Download Official IATF 16949 / PPAP ECO Impact Report (.html)` at the bottom of the cockpit and open the report in a new browser tab.
+- **Key Display Elements:**
+  - Dark-mode, publication-grade layout with IATF 16949 Clause 8.5.6 header.
+  - Financial trade-off summary cards and supplier tooling risk matrix.
+  - Tripartite sign-off authorization boxes: R&D, Procurement, and Quality Assurance (`PPAP-OK`).
+- **Presenter Pitch Script:**
+  > *"Finally, when OEM quality auditors visit your plant, your engineering staff won't spend weeks assembling retrospective spreadsheets.  
+  > CadencePLM auto-generates this audit-ready, AIAG/VDA PPAP Level 3 compliant engineering dossier in seconds. Sign-offs are collected, and your plant passes audits with zero findings."*
+
+---
+---
+
+# [TÜRKÇE] Kurumsal Satış ve Değer Kanıtlama Kılavuzu (Buyer Playbook)
 
 Bu kılavuz; Tier-1 ve Tier-2 otomotiv imalatçılarında **CadencePLM** çözümünün değer teklifini, ekonomik getirisini (ROI), müşteri itirazlarına karşı teknik yanıtları ve canlı demo senaryolarını endüstriyel gerçeklikle tanımlar.
 
